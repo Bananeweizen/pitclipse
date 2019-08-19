@@ -18,6 +18,7 @@ package org.pitest.pitclipse.ui.behaviours.pageobjects;
 
 import org.eclipse.swtbot.eclipse.finder.SWTWorkbenchBot;
 import org.eclipse.swtbot.swt.finder.exceptions.WidgetNotFoundException;
+import org.eclipse.swtbot.swt.finder.widgets.SWTBotMenu;
 import org.pitest.pitclipse.runner.PitOptions;
 import org.pitest.pitclipse.ui.swtbot.PitOptionsNotifier;
 import org.pitest.pitclipse.ui.swtbot.SWTBotMenuHelper;
@@ -46,12 +47,19 @@ public class RunMenu {
 
     public void runPit() {
         SWTBotMenuHelper menuHelper = new SWTBotMenuHelper();
-        menuHelper.findMenu(bot.menu(RUN).menu(RUN_AS), PIT_MUTATION_TEST)
+        SWTBotMenu runAsMenu = bot.menu(RUN)
+                                  .menu(RUN_AS);
+        menuHelper.findMenu(runAsMenu, PIT_MUTATION_TEST)
                   .click();
         try {
-            bot.shell("Select a Test Configuration").bot().button("OK").click();
+            bot.shell("Select a Test Configuration")
+               .bot()
+               .button("OK")
+               .click();
         } catch (WidgetNotFoundException e) {
             // the dialog has not opened: it is likely the first time Pit is launched
+            System.err.println("the dialog has not opened: it is likely the first time Pit is launched");
+            e.printStackTrace();
         }
     }
 

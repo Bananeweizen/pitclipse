@@ -112,6 +112,7 @@ public class PitclipseSteps {
 
     @When("tests are run for project {word}")
     public void runProjectTest(String projectName) {
+        System.out.println("ABOUT TO RUN TESTS AT PROJECT LEVEL (" + projectName + ")");
         runPit(new SelectProject(projectName));
     }
 
@@ -131,8 +132,10 @@ public class PitclipseSteps {
                 PAGES.getRunMenu().runPit();
                 return;
             } catch (TimeoutException te) {
+                te.printStackTrace();
                 counter++;
             } catch (WidgetNotFoundException wfne) {
+                wfne.printStackTrace();
                 counter++;
             }
         }
