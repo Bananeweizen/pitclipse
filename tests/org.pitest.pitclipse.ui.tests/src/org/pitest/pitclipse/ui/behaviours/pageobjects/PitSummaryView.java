@@ -29,7 +29,9 @@ public class PitSummaryView {
 
     public void waitForUpdate() {
         try {
+            System.out.println("SUMMARY VIEW IS WAITING FOR UPDATE");
             lastResults = PitNotifier.INSTANCE.getResults();
+            System.out.println("SUMMARY VIEW HAS BEEN UPDATED");
         } catch (InterruptedException e) {
             throw new StepException(e);
         }
