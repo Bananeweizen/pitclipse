@@ -13,4 +13,13 @@
             class="org.pitest.pitclipse.ui.swtbot.PitOptionsTestNotifier">
       </pit_options>
    </extension>
+   <extension
+         point="org.eclipse.ui.console.consolePatternMatchListeners">
+      <consolePatternMatchListener
+            class="org.pitest.pitclipse.ui.tests.PatternMatchListenerDelegate1"
+            id="org.pitest.pitclipse.ui.tests.consolePatternMatchListener1"
+            regex=".*">
+         <enablement></enablement>
+      </consolePatternMatchListener>
+   </extension>
 </fragment>
