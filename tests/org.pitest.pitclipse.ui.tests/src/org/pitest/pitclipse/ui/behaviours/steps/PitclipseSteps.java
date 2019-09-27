@@ -132,10 +132,8 @@ public class PitclipseSteps {
                 PAGES.getRunMenu().runPit();
                 return;
             } catch (TimeoutException te) {
-                te.printStackTrace();
                 counter++;
             } catch (WidgetNotFoundException wfne) {
-                wfne.printStackTrace();
                 counter++;
             }
         }

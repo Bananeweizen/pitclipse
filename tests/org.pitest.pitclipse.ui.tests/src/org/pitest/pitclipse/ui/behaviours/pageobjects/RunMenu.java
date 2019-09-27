@@ -57,9 +57,9 @@ public class RunMenu {
                .button("OK")
                .click();
         } catch (WidgetNotFoundException e) {
-            // the dialog has not opened: it is likely the first time Pit is launched
-            System.err.println("the dialog has not opened: it is likely the first time Pit is launched");
-            e.printStackTrace();
+            // The 'Select a Test Configuration' dialog only appears when Pit has been launched
+            // at least once. If it is not found then PIT has been launched directly during the 
+            // click on 'Run As > PIT Mutation Test' so everything's alright.
         }
     }
 
