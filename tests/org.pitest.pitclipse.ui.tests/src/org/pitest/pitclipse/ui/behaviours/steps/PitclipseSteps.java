@@ -79,7 +79,8 @@ public class PitclipseSteps {
     @When("the following mutation is selected")
     public void mutationIsSelected(DataTable tableOfMutations) {
         PitMutation mutation = mutationsFromExampleTable(tableOfMutations).get(0);
-        PAGES.getPitMutationsView().select(mutation);
+        PAGES.getPitMutationsView()
+             .select(mutation);
     }
 
     @Then("the file {string} is opened at line number {int}")

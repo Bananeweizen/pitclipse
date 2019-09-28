@@ -36,6 +36,8 @@ import static org.pitest.pitclipse.ui.behaviours.pageobjects.PageObjects.PAGES;
 import static org.pitest.pitclipse.ui.behaviours.pageobjects.SwtBotTreeHelper.expand;
 import static org.pitest.pitclipse.ui.util.StepUtil.safeSleep;
 
+import junit.framework.AssertionFailedError;
+
 public class PitMutationsView {
 
     private final SWTWorkbenchBot bot;
@@ -147,8 +149,10 @@ public class PitMutationsView {
             for (StatusTree statusTree : statuses) {
                 if (status.equals(statusTree.statusName)) {
                     statusTree.select(mutation);
+                    break;
                 }
             }
+            throw new AssertionFailedError("Unable to select the mutation from the PIT Mutations View: it does not seem to be shown (" + mutation + ")");
         }
 
         public static MutationsTree from(SWTBotTree mutationTree) {
