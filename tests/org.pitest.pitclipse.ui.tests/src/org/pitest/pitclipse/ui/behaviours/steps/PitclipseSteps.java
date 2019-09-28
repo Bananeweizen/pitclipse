@@ -132,11 +132,15 @@ public class PitclipseSteps {
                 PAGES.getRunMenu().runPit();
                 return;
             } catch (TimeoutException te) {
+                te.printStackTrace();
                 counter++;
             } catch (WidgetNotFoundException wfne) {
+                wfne.printStackTrace();
                 counter++;
             }
         }
+        if (counter >= retryCount) 
+            System.out.println("Task discarded: PIT won't be run");
     }
     
     private List<PitMutation> mutationsFromExampleTable(DataTable tableOfMutations) {
