@@ -19,6 +19,7 @@ package org.pitest.pitclipse.ui.behaviours.pageobjects;
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
 
+import junit.framework.AssertionFailedError;
 import org.eclipse.swtbot.eclipse.finder.SWTWorkbenchBot;
 import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotEclipseEditor;
 import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotEditor;
@@ -36,7 +37,6 @@ import static org.pitest.pitclipse.ui.behaviours.pageobjects.PageObjects.PAGES;
 import static org.pitest.pitclipse.ui.behaviours.pageobjects.SwtBotTreeHelper.expand;
 import static org.pitest.pitclipse.ui.util.StepUtil.safeSleep;
 
-import junit.framework.AssertionFailedError;
 
 public class PitMutationsView {
 
@@ -56,6 +56,7 @@ public class PitMutationsView {
     private SWTBotTree mutationTreeRoot() {
         SWTBotView mutationsView = bot.viewByTitle("PIT Mutations");
         mutationsView.show();
+        bot.waitUntil(new ViewOpenedCondition(bot, "PIT Mutations"));
         SWTBotTree mutationTree = mutationsView.bot().tree();
         return mutationTree;
     }
@@ -149,10 +150,11 @@ public class PitMutationsView {
             for (StatusTree statusTree : statuses) {
                 if (status.equals(statusTree.statusName)) {
                     statusTree.select(mutation);
-                    break;
+                    return;
                 }
             }
-            throw new AssertionFailedError("Unable to select the mutation from the PIT Mutations View: it does not seem to be shown (" + mutation + ")");
+            throw new AssertionFailedError(
+                    "Cannot select mutation from the PIT Mutations view: no mutation with status '" + status + "' is shown (" + mutation + ")");
         }
 
         public static MutationsTree from(SWTBotTree mutationTree) {
@@ -177,8 +179,11 @@ public class PitMutationsView {
             for (ProjectTree projectTree : projects) {
                 if (mutation.getProject().equals(projectTree.projectName)) {
                     projectTree.select(mutation);
+                    return;
                 }
             }
+            throw new AssertionFailedError(
+                    "Cannot select mutation from the PIT Mutations view: no mutation with project '" + mutation.getProject() + "' is shown (" + mutation + ")");
         }
 
         public static StatusTree from(SWTBotTreeItem statusTree) {
@@ -205,8 +210,11 @@ public class PitMutationsView {
             for (PackageTree packageTree : packages) {
                 if (mutation.getPkg().equals(packageTree.packageName)) {
                     packageTree.select(mutation);
+                    return;
                 }
             }
+            throw new AssertionFailedError(
+                    "Cannot select mutation from the PIT Mutations view: no mutation with package '" + mutation.getPkg() + "' is shown (" + mutation + ")");
         }
 
         public static ProjectTree from(SWTBotTreeItem projectTree) {
