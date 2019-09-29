@@ -32,6 +32,7 @@ public class ExtensionPointResultHandler implements PitResultHandler {
 
     public void handle(PitResults results) {
         Job.create("Reporting Pit results", monitor -> {
+            System.out.println("REPORTING PIT RESULTS JOB STARTED");
             new UpdateExtensions(results).run();
             return new Status(IStatus.OK, "org.pitest.pitclipse.core.launch", "ok");
         }).schedule();

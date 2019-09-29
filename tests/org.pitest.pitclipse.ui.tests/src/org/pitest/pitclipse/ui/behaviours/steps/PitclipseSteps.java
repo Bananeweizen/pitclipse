@@ -131,6 +131,7 @@ public class PitclipseSteps {
             try {
                 runnable.run();
                 PAGES.getRunMenu().runPit();
+                System.out.println("PIT LAUNCHED SUCCESSFULLY");
                 return;
             } catch (TimeoutException te) {
                 te.printStackTrace();

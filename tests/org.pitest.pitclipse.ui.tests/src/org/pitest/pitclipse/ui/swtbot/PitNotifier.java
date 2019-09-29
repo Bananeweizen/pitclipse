@@ -31,6 +31,7 @@ public enum PitNotifier {
 
     public void notifyResults(PitResultsView resultsView)
             throws InterruptedException {
+        System.out.println("PIT RESULTS HAVE BEEN SENT");
         resultQueue.put(resultsView);
     }
 

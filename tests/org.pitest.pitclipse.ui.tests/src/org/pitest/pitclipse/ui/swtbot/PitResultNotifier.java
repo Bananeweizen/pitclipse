@@ -24,8 +24,13 @@ import org.pitest.pitclipse.ui.swtbot.ResultsParser.Summary;
 public class PitResultNotifier implements ResultNotifier<PitUiUpdate> {
     @Override
     public void handleResults(PitUiUpdate updateEvent) {
+        System.out.println("PitResultNotifier.handleResults()");
         if (testsAreInProgress()) {
+            System.out.println("ABOUT TO PUSH RESULTS IN THE QUEUE");
             notifiyTestsOfHtmlResults(updateEvent);
+        }
+        else {
+            System.out.println("BUT TESTS ARE NOT IN PROGRESS");
         }
     }
 
