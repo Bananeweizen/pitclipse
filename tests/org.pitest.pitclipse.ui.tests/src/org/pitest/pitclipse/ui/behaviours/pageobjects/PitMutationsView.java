@@ -19,26 +19,28 @@ package org.pitest.pitclipse.ui.behaviours.pageobjects;
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
 
-import junit.framework.AssertionFailedError;
+import org.eclipse.core.runtime.jobs.IJobManager;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.swtbot.eclipse.finder.SWTWorkbenchBot;
 import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotEclipseEditor;
 import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotEditor;
 import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotView;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotTree;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotTreeItem;
-import org.eclipse.swtbot.swt.finder.widgets.TimeoutException;
 import org.pitest.pitclipse.runner.results.DetectionStatus;
 import org.pitest.pitclipse.ui.behaviours.steps.FilePosition;
 import org.pitest.pitclipse.ui.behaviours.steps.PitMutation;
+import org.pitest.pitclipse.ui.view.mutations.OpenMutationDoubleClick;
 
 import java.util.List;
+import java.util.concurrent.TimeoutException;
 import java.util.regex.Pattern;
 
-import static org.eclipse.swtbot.eclipse.finder.matchers.WidgetMatcherFactory.withPartName;
-import static org.eclipse.swtbot.eclipse.finder.waits.Conditions.waitForEditor;
 import static org.pitest.pitclipse.ui.behaviours.pageobjects.PageObjects.PAGES;
 import static org.pitest.pitclipse.ui.behaviours.pageobjects.SwtBotTreeHelper.expand;
 import static org.pitest.pitclipse.ui.util.StepUtil.safeSleep;
+
+import junit.framework.AssertionFailedError;
 
 
 
@@ -333,16 +335,10 @@ public class PitMutationsView {
 
     public FilePosition getLastSelectedMutation(String expectedFileName) {
         try {
-            System.out.println("ABOUT TO WAIT FOR EDITOR " + expectedFileName + " TO OPEN");
-            // Leave some time to the UI to open the editor is needed
-            bot.waitUntil(waitForEditor(withPartName(expectedFileName)));
-            
+            waitForBackgroundJobsToEnd();
         } catch (TimeoutException e) {
-            // The editor is not opened, test will probably fail but that's 
-            // up to the caller to handle that.
-            System.out.println("TIMEOUT WHILE WAITING FOR " + expectedFileName);
+            System.err.println(e.getMessage());
         }
-        
         for (SWTBotEditor botEditor : bot.editors()) {
             System.out.println("AVAILABLE EDITOR: " + botEditor.getTitle());
         }
@@ -360,5 +356,34 @@ public class PitMutationsView {
             }
         }
         return FilePosition.builder().withFileName(fileName).withLineNumber(lineNumber).build();
+    }
+
+    /**
+     * Waits for all Jobs launched by the PIT Mutation view.
+     * <p>
+     * Those Jobs are notably used to open the Java editor at a line that produced
+     * a mutant. Not waiting for them could lead some tests to fail.
+     * <p>
+     * This methods waits at most
+     */
+    private void waitForBackgroundJobsToEnd() throws TimeoutException {
+        long timeAtStart = System.currentTimeMillis();
+        
+        while (true) {
+            boolean fifteenSecondsElapsed = System.currentTimeMillis() - timeAtStart >= 15000;
+            if (fifteenSecondsElapsed) {
+                throw new TimeoutException("After waiting 15s the PIT Mutations view still has jobs running in background." +
+                                           "An infinite loop is suspected, please check the code. " +
+                                           "Tests are moving on which may lead some assertions to fail.");
+            }
+            IJobManager jobs = Job.getJobManager();
+            Job[] runningJobs = jobs.find(OpenMutationDoubleClick.JOB_FAMILY);
+            
+            if (runningJobs.length == 0) {
+                System.out.println("NO JOB FOUND RUNNING");
+                break;
+            }
+            System.out.println("ONE BACKGROUND JOB FOUND RUNNING: LET'S WAIT FOR IT");
+        }
     }
 }
