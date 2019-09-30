@@ -85,7 +85,7 @@ public class PitclipseSteps {
 
     @Then("the file {string} is opened at line number {int}")
     public void mutationIsOpened(String fileName, int lineNumber) {
-        FilePosition position = PAGES.getPitMutationsView().getLastSelectedMutation();
+        FilePosition position = PAGES.getPitMutationsView().getLastSelectedMutation(fileName);
         assertThat(position.className, is(equalTo(fileName)));
         assertThat(position.lineNumber, is(equalTo(lineNumber)));
     }

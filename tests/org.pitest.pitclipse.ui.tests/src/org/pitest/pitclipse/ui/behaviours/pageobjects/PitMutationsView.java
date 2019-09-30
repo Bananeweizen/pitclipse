@@ -26,6 +26,7 @@ import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotEditor;
 import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotView;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotTree;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotTreeItem;
+import org.eclipse.swtbot.swt.finder.widgets.TimeoutException;
 import org.pitest.pitclipse.runner.results.DetectionStatus;
 import org.pitest.pitclipse.ui.behaviours.steps.FilePosition;
 import org.pitest.pitclipse.ui.behaviours.steps.PitMutation;
@@ -33,9 +34,12 @@ import org.pitest.pitclipse.ui.behaviours.steps.PitMutation;
 import java.util.List;
 import java.util.regex.Pattern;
 
+import static org.eclipse.swtbot.eclipse.finder.matchers.WidgetMatcherFactory.withPartName;
+import static org.eclipse.swtbot.eclipse.finder.waits.Conditions.waitForEditor;
 import static org.pitest.pitclipse.ui.behaviours.pageobjects.PageObjects.PAGES;
 import static org.pitest.pitclipse.ui.behaviours.pageobjects.SwtBotTreeHelper.expand;
 import static org.pitest.pitclipse.ui.util.StepUtil.safeSleep;
+
 
 
 public class PitMutationsView {
@@ -241,8 +245,11 @@ public class PitMutationsView {
             for (ClassTree classTree : classes) {
                 if (mutation.getClassName().equals(classTree.className)) {
                     classTree.select(mutation);
+                    return;
                 }
             }
+            throw new AssertionFailedError(
+                    "Cannot select mutation from the PIT Mutations view: no mutation of class '" + mutation.getClassName() + "' is shown (" + mutation + ")");
         }
 
         public static PackageTree from(SWTBotTreeItem packageTree) {
@@ -269,9 +276,14 @@ public class PitMutationsView {
             for (MutationTree mutationTree : mutations) {
                 if (mutation.getLineNumber() == mutationTree.lineNumber &&
                         mutation.getMutation().equals(mutationTree.mutation)) {
+                    System.out.println("SELECTING " + mutation.getClassName() + " [" + mutation + "]");
                     mutationTree.select();
+                    return;
                 }
             }
+            throw new AssertionFailedError(
+                    "Cannot select mutation from the PIT Mutations view: no mutation defined as \"" + mutation.getLineNumber() + "\"" +
+                    " and located at line " + mutation.getLineNumber() + " is shown (" + mutation + ")");
         }
 
         public static ClassTree from(SWTBotTreeItem classTree) {
@@ -297,7 +309,8 @@ public class PitMutationsView {
         }
 
         public void select() {
-            treeItem.select().doubleClick();
+            treeItem.select()
+                    .doubleClick();
         }
 
         public static MutationTree from(SWTBotTreeItem mutationNode) {
@@ -318,7 +331,17 @@ public class PitMutationsView {
         }
     }
 
-    public FilePosition getLastSelectedMutation() {
+    public FilePosition getLastSelectedMutation(String expectedFileName) {
+        try {
+            // Leave some time to the UI to open the editor is needed
+            bot.waitUntil(waitForEditor(withPartName(expectedFileName)));
+            
+        } catch (TimeoutException e) {
+            // The editor is not opened, test will probably fail but that's 
+            // up to the caller to handle that.
+            System.out.println("TIMEOUT WHILE WAITING FOR " + expectedFileName);
+        }
+        
         SWTBotEditor editor = bot.activeEditor();
         String fileName = editor.getTitle();
         SWTBotEclipseEditor textEditor = editor.toTextEditor();
