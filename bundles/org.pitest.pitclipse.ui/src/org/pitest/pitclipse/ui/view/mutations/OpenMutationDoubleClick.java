@@ -60,9 +60,11 @@ public enum OpenMutationDoubleClick implements IDoubleClickListener {
 
     @Override
     public void doubleClick(DoubleClickEvent event) {
+        System.out.println("RECEIVED DOUBLE CLICK EVENT");
         IStructuredSelection selection = selectionFrom(event);
         Object element = selection.getFirstElement();
         if (element instanceof Visitable) {
+            System.out.println("CAN VISIT THE ELEMENT");
             Visitable visitable = (Visitable) element;
             visitable.accept(MutationSource.VIEWER);
         }
@@ -140,7 +142,12 @@ public enum OpenMutationDoubleClick implements IDoubleClickListener {
                                 return Optional.fromNullable(root.getFile(type.getPath()));
                             } catch (JavaModelException e) {
                                 // Maybe type no longer exists. Do nothing
+                                System.out.println("THE CLASS " + className + " IN PROJECT " + projectName + " CANNOT BE FOUND");
+                                e.printStackTrace();
                             }
+                        }
+                        else {
+                            System.out.println("NOT A JAVA PROJECT");
                         }
                     }
                 }
@@ -166,6 +173,9 @@ public enum OpenMutationDoubleClick implements IDoubleClickListener {
                             return org.eclipse.core.runtime.Status.CANCEL_STATUS;
                         }
                     }
+                    else {
+                        System.out.println("CANNOT OPEN THE EDITOR: NO WORKBENCH AVAILABLE");
+                    }
                     return org.eclipse.core.runtime.Status.OK_STATUS;
                 }
 
@@ -177,6 +187,9 @@ public enum OpenMutationDoubleClick implements IDoubleClickListener {
                         IEditorInput editorInput = textEditor.getEditorInput();
                         openEditorAtLine(textEditor, editorInput);
                     }
+                    else {
+                        System.out.println("EDITOR IS NOT AN INSTANCE OF TEXT EDITOR " + editorPart);
+                    }
                 }
 
                 private void openEditorAtLine(ITextEditor textEditor, IEditorInput editorInput) throws CoreException {
@@ -186,8 +199,11 @@ public enum OpenMutationDoubleClick implements IDoubleClickListener {
                         IDocument document = provider.getDocument(editorInput);
                         IRegion line = document.getLineInformation(lineNumber);
                         textEditor.selectAndReveal(line.getOffset(), line.getLength());
+                        System.out.println("THE EDITOR " + textEditor.getTitle() + " HAS BEEN OPEN AT LINE " + lineNumber);
                     } catch (BadLocationException e) {
                         // Invalid line number - perhaps file has since changed.  Do nothing
+                        System.out.println("CANNOT GO TO LINE");
+                        e.printStackTrace();
                     } finally {
                         provider.disconnect(editorInput);
                     }

@@ -333,6 +333,7 @@ public class PitMutationsView {
 
     public FilePosition getLastSelectedMutation(String expectedFileName) {
         try {
+            System.out.println("ABOUT TO WAIT FOR EDITOR " + expectedFileName + " TO OPEN");
             // Leave some time to the UI to open the editor is needed
             bot.waitUntil(waitForEditor(withPartName(expectedFileName)));
             
@@ -340,6 +341,10 @@ public class PitMutationsView {
             // The editor is not opened, test will probably fail but that's 
             // up to the caller to handle that.
             System.out.println("TIMEOUT WHILE WAITING FOR " + expectedFileName);
+        }
+        
+        for (SWTBotEditor botEditor : bot.editors()) {
+            System.out.println("AVAILABLE EDITOR: " + botEditor.getTitle());
         }
         
         SWTBotEditor editor = bot.activeEditor();
