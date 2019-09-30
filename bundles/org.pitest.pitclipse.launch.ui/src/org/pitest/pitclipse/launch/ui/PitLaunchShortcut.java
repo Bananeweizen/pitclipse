@@ -90,17 +90,21 @@ public class PitLaunchShortcut implements ILaunchShortcut2 {
 
     @Override
     public void launch(IEditorPart editor, String mode) {
+        System.out.println("PitLaunchShortcut.launch(editor, mode)");
         ITypeRoot element = getEditorInputTypeRoot(editor.getEditorInput());
         if (element == null) {
             showNoTestsFoundDialog();
         } else {
+            System.out.println("Shortcut launching...");
             launch(new Object[] { element }, mode);
         }
     }
 
     @Override
     public void launch(ISelection selection, String mode) {
+        System.out.println("PitLaunchShortcut.launch(selection, mode)");
         if (selection instanceof IStructuredSelection) {
+            System.out.println("Shortcut launching...");
             launch(((IStructuredSelection) selection).toArray(), mode);
         } else {
             showNoTestsFoundDialog();
@@ -114,7 +118,11 @@ public class PitLaunchShortcut implements ILaunchShortcut2 {
                 Optional<IJavaElement> launchElement = selected.map(this::getLaunchElementFor).get();
 
                 if (launchElement.isPresent()) {
+                    System.out.println("ABOUT TO PERFORM LAUNCH");
                     performLaunch(launchElement.get(), mode);
+                }
+                else {
+                    System.out.println("NO LAUNCH ELEMENT FOUND");
                 }
             }
             else {
@@ -122,8 +130,10 @@ public class PitLaunchShortcut implements ILaunchShortcut2 {
             }
         } catch (InterruptedException e) {
             // OK, silently move on
+            e.printStackTrace();
         } catch (CoreException e) {
             // OK, silently move on
+            e.printStackTrace();
         }
     }
 

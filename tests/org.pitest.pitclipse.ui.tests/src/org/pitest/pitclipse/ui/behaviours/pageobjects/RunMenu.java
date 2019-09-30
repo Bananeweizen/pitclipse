@@ -60,6 +60,7 @@ public class RunMenu {
             // The 'Select a Test Configuration' dialog only appears when Pit has been launched
             // at least once. If it is not found then PIT has been launched directly during the 
             // click on 'Run As > PIT Mutation Test' so everything's alright.
+            e.printStackTrace();
         }
     }
 
