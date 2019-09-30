@@ -134,6 +134,9 @@ public class PitLaunchShortcut implements ILaunchShortcut2 {
         } catch (CoreException e) {
             // OK, silently move on
             e.printStackTrace();
+        } catch (Exception e) {
+            System.out.println("SOMETHING WENT BAD: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 
@@ -142,9 +145,13 @@ public class PitLaunchShortcut implements ILaunchShortcut2 {
     }
 
     private void performLaunch(IJavaElement element, String mode) throws InterruptedException, CoreException {
+        System.out.println(" ABOUT TO CREATE A LAUNCH CONFIGURATION");
         ILaunchConfigurationWorkingCopy tmp = createLaunchConfiguration(element);
+        System.out.println(" ABOUT TO FIND AN EXISTING CONFIGURATION");
         Optional<ILaunchConfiguration> existingConfig = findExistingLaunchConfiguration(tmp, mode);
+        System.out.println(" ABOUT TO SAVE: " + existingConfig.orElse(null));
         ILaunchConfiguration config = existingConfig.orElse(tmp.doSave());
+        System.out.println(" ABOUT TO DEBUG UI LAUNCH");
         DebugUITools.launch(config, mode);
     }
 
@@ -296,8 +303,10 @@ public class PitLaunchShortcut implements ILaunchShortcut2 {
             // cancelled the dialog, in which case this method returns null,
             // since cancelling the dialog should also cancel launching
             // anything.
+            System.out.println("ASKING THE USER TO CHOOSE A CONF");
             ILaunchConfiguration config = chooseConfiguration(candidateConfigs, mode);
             if (config != null) {
+                System.out.println("USER CHOSE A CONFIGURATION");
                 return Optional.ofNullable(config);
             }
         }

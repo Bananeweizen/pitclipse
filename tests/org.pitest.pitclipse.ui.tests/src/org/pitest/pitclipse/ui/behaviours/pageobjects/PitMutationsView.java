@@ -19,6 +19,7 @@ package org.pitest.pitclipse.ui.behaviours.pageobjects;
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
 
+import junit.framework.AssertionFailedError;
 import org.eclipse.core.runtime.jobs.IJobManager;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.swtbot.eclipse.finder.SWTWorkbenchBot;
@@ -40,7 +41,6 @@ import static org.pitest.pitclipse.ui.behaviours.pageobjects.PageObjects.PAGES;
 import static org.pitest.pitclipse.ui.behaviours.pageobjects.SwtBotTreeHelper.expand;
 import static org.pitest.pitclipse.ui.util.StepUtil.safeSleep;
 
-import junit.framework.AssertionFailedError;
 
 
 
@@ -339,10 +339,6 @@ public class PitMutationsView {
         } catch (TimeoutException e) {
             System.err.println(e.getMessage());
         }
-        for (SWTBotEditor botEditor : bot.editors()) {
-            System.out.println("AVAILABLE EDITOR: " + botEditor.getTitle());
-        }
-        
         SWTBotEditor editor = bot.activeEditor();
         String fileName = editor.getTitle();
         SWTBotEclipseEditor textEditor = editor.toTextEditor();
@@ -363,8 +359,8 @@ public class PitMutationsView {
      * <p>
      * Those Jobs are notably used to open the Java editor at a line that produced
      * a mutant. Not waiting for them could lead some tests to fail.
-     * <p>
-     * This methods waits at most
+     * 
+     * @throws TimeoutException if this method waits more than 15 seconds
      */
     private void waitForBackgroundJobsToEnd() throws TimeoutException {
         long timeAtStart = System.currentTimeMillis();
@@ -378,12 +374,11 @@ public class PitMutationsView {
             }
             IJobManager jobs = Job.getJobManager();
             Job[] runningJobs = jobs.find(OpenMutationDoubleClick.JOB_FAMILY);
-            
-            if (runningJobs.length == 0) {
-                System.out.println("NO JOB FOUND RUNNING");
+
+            boolean noMoreJobRemains = runningJobs.length == 0;
+            if (noMoreJobRemains) {
                 break;
             }
-            System.out.println("ONE BACKGROUND JOB FOUND RUNNING: LET'S WAIT FOR IT");
         }
     }
 }
