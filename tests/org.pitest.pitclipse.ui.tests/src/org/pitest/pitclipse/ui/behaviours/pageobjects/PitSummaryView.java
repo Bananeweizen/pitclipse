@@ -16,6 +16,8 @@
 
 package org.pitest.pitclipse.ui.behaviours.pageobjects;
 
+import org.eclipse.swtbot.eclipse.finder.SWTWorkbenchBot;
+import org.eclipse.swtbot.swt.finder.widgets.SWTBotShell;
 import org.pitest.pitclipse.ui.behaviours.StepException;
 import org.pitest.pitclipse.ui.swtbot.PitNotifier;
 import org.pitest.pitclipse.ui.swtbot.PitResultsView;
@@ -30,6 +32,10 @@ public class PitSummaryView {
     public void waitForUpdate() {
         try {
             System.out.println("SUMMARY VIEW IS WAITING FOR UPDATE");
+            
+            for (SWTBotShell shell : new SWTWorkbenchBot().shells()) {
+                System.out.println("    SHELL: " + shell.getId() + " " + shell.getText() + " ; " + shell);
+            }
             lastResults = PitNotifier.INSTANCE.getResults();
             System.out.println("SUMMARY VIEW HAS BEEN UPDATED");
         } catch (InterruptedException e) {
