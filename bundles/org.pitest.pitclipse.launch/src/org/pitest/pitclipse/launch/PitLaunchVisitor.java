@@ -47,6 +47,7 @@ public class PitLaunchVisitor implements PitExecutionModeVisitor<Void> {
 
     public Void visitProjectLevelConfiguration() {
         try {
+            System.out.println("   VISITING PROJECT LEVEL CONFIGURATION");
             new ProjectLevelLaunchDelegate(pitConfiguration).launch(configuration, RUN_MODE, launch, monitor);
         } catch (CoreException e) {
             throw new LaunchFailedException(configuration.getName());

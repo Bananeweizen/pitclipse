@@ -35,6 +35,7 @@ public class PitLaunchConfigurationDelegate extends AbstractJavaLaunchConfigurat
     public void launch(ILaunchConfiguration launchConfig, String mode, ILaunch launch, IProgressMonitor progress)
             throws CoreException {
 
+        System.out.println("   ABOUT TO VISIT THE EXECUTION MODE");
         pluginExecutionMode().accept(new PitLaunchVisitor(pluginConfiguration(), launchConfig, launch, progress));
     }
 

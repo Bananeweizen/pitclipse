@@ -62,16 +62,20 @@ public abstract class AbstractPitLaunchDelegate extends JavaLaunchDelegate {
     }
 
     protected void generatePortNumber() {
+        System.out.println("AbstractPitLaunchDelegate.generatePortNumber()");
         portNumber = new SocketProvider().getFreePort();
+        System.out.println("AbstractPitLaunchDelegate.generatePortNumber() -- end");
     }
 
     @Override
     public String getMainTypeName(ILaunchConfiguration launchConfig) throws CoreException {
+        System.out.println("AbstractPitLaunchDelegate.getMainTypeName()");
         return PIT_RUNNER;
     }
 
     @Override
     public String[] getClasspath(ILaunchConfiguration launchConfig) throws CoreException {
+        System.out.println("AbstractPitLaunchDelegate.getClasspath()");
         List<String> newClasspath = ImmutableList.<String>builder()
                 .addAll(ImmutableList.copyOf(super.getClasspath(launchConfig))).addAll(getDefault().getPitClasspath())
                 .build();
@@ -81,24 +85,30 @@ public abstract class AbstractPitLaunchDelegate extends JavaLaunchDelegate {
 
     @Override
     public String getProgramArguments(ILaunchConfiguration launchConfig) throws CoreException {
+        System.out.println("AbstractPitLaunchDelegate.getProgramArguments()");
         return new StringBuilder(super.getProgramArguments(launchConfig)).append(' ').append(portNumber).toString();
     }
 
     @Override
     public void launch(ILaunchConfiguration configuration, String mode, ILaunch launch, IProgressMonitor monitor)
             throws CoreException {
+        System.out.println("   GENERATING PORT NUMBER");
         generatePortNumber();
+        System.out.println("   CREATING LAUNCH WRAPPER");
         LaunchConfigurationWrapper configWrapper = LaunchConfigurationWrapper.builder()
                 .withLaunchConfiguration(configuration).withProjectFinder(getProjectFinder())
                 .withPackageFinder(getPackageFinder()).withClassFinder(getClassFinder())
                 .withSourceDirFinder(getSourceDirFinder()).withPitConfiguration(pitConfiguration).build();
 
+        System.out.println("   GETTING OPTIONS");
         PitOptions options = configWrapper.getPitOptions();
 
+        System.out.println("   ACTUALLY LAUNCHING");
         super.launch(configuration, mode, launch, monitor);
 
         IExtensionRegistry registry = Platform.getExtensionRegistry();
 
+        System.out.println("   BROADCASTING RESULTS");
         new ExtensionPointHandler<PitRuntimeOptions>(EXTENSION_POINT_ID).execute(registry, new PitRuntimeOptions(
                 portNumber, options, configWrapper.getMutatedProjects()));
 
