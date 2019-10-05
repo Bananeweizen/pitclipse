@@ -116,6 +116,8 @@ public final class ClassSteps {
         // Cannot use the Package explorer right click context menu
         // to create a class due to SWTBot bug 261360
         PAGES.getFileMenu().createClass(packageName, className);
+        System.out.println("WAITING FOR BUILD TO END ....");
         PAGES.getBuildProgress().waitForBuild();
+        System.out.println("BUILD ENDED");
     }
 }

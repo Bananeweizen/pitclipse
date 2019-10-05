@@ -17,7 +17,10 @@
 package org.pitest.pitclipse.ui.behaviours.pageobjects;
 
 import org.eclipse.swtbot.eclipse.finder.SWTWorkbenchBot;
+import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotView;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotShell;
+import org.eclipse.swtbot.swt.finder.widgets.SWTBotTree;
+import org.eclipse.swtbot.swt.finder.widgets.SWTBotTreeItem;
 import org.pitest.pitclipse.ui.behaviours.StepException;
 import org.pitest.pitclipse.ui.swtbot.PitNotifier;
 import org.pitest.pitclipse.ui.swtbot.PitResultsView;
@@ -35,6 +38,28 @@ public class PitSummaryView {
             
             for (SWTBotShell shell : new SWTWorkbenchBot().shells()) {
                 System.out.println("    SHELL: " + shell.getId() + " " + shell.getText() + " ; " + shell);
+                
+                if (shell.getText().contains("Errors in Workspace")) {
+                    System.out.println("       => Seems like compilation problems prevent the run :(");
+                    
+                    SWTBotView view = new SWTWorkbenchBot().viewByPartName("Problems");
+                    view.show();
+                    SWTBotTree tree = view.bot().tree();
+                    String category = "Errors";
+                    int nbOfErrors = 0;
+                    for (SWTBotTreeItem item : tree.getAllItems()) {
+                        String text = item.getText();
+                        System.out.println("         PROBLEM: " + text);
+                        if (text != null && text.startsWith(category)) {
+                            item.expand();
+
+                            for (String problem : item.getNodes()) {
+                                System.out.println("         PROBLEM: " + problem);
+                            }
+                            break;
+                        }
+                    }
+                }
             }
             lastResults = PitNotifier.INSTANCE.getResults();
             System.out.println("SUMMARY VIEW HAS BEEN UPDATED");

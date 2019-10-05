@@ -104,11 +104,29 @@ public class AbstractSyntaxTree {
 
             List<IClasspathEntry> entries = ImmutableList.<IClasspathEntry>builder().add(project.getRawClasspath())
                     .add(junitClasspath).build();
+            
+            DumbMonitor monitor = new DumbMonitor();
 
             // add a new entry using the path to the container
-            project.setRawClasspath(entries.toArray(new IClasspathEntry[entries.size()]), null);
+            project.setRawClasspath(entries.toArray(new IClasspathEntry[entries.size()]), monitor);
+            
+            while (!monitor.isDone && !monitor.isCanceled()) {
+                // wait for the classpath to be set
+                // likely useless, but at this point I don't prefer to test everything
+                System.out.println("WAITING FOR THE CLASSPATH TO BE UPDATED");
+            }
         } catch (JavaModelException e) {
             throw new StepException(e);
+        }
+    }
+    
+    private static class DumbMonitor extends NullProgressMonitor {
+        
+        private boolean isDone = false;
+        
+        @Override
+        public void done() {
+            isDone = true;
         }
     }
 

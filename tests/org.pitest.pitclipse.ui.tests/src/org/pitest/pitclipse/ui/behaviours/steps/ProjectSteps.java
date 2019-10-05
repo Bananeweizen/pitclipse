@@ -60,6 +60,7 @@ public class ProjectSteps {
     @When("the dependent project {word} is added to the classpath of {word}")
     public void addToBuildPath(String dependentProject, String projectName) {
         PAGES.getPackageExplorer().selectProject(projectName);
+        System.out.println(" ADDING DEPENDANT PROJECT ...");
         PAGES.getAbstractSyntaxTree().addProjectToClassPathOfProject(projectName, dependentProject);
     }
 }
