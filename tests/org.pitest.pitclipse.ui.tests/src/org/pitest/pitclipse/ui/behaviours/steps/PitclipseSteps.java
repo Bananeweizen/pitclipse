@@ -22,6 +22,11 @@ import com.google.common.collect.ImmutableList;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
 import io.cucumber.datatable.DataTable;
+
+import org.eclipse.core.resources.IncrementalProjectBuilder;
+import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.swtbot.swt.finder.exceptions.WidgetNotFoundException;
 import org.eclipse.swtbot.swt.finder.widgets.TimeoutException;
 import org.hamcrest.Description;
@@ -29,6 +34,7 @@ import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
 import org.pitest.pitclipse.runner.PitOptions;
 import org.pitest.pitclipse.runner.results.DetectionStatus;
+import org.pitest.pitclipse.ui.behaviours.StepException;
 import org.pitest.pitclipse.ui.behaviours.pageobjects.PackageContext;
 import org.pitest.pitclipse.ui.behaviours.pageobjects.PitSummaryView;
 
@@ -51,7 +57,10 @@ import static org.pitest.pitclipse.ui.util.AssertUtil.assertDoubleEquals;
 public class PitclipseSteps {
 
     @When("test {word} in package {word} is run for project {word}")
-    public void runTest(final String testClassName, final String packageName, final String projectName) {
+    public void runTest(final String testClassName, final String packageName, final String projectName) throws CoreException {
+        // Build the whole workspace to prevent random compilation failures
+        ResourcesPlugin.getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, new NullProgressMonitor());
+        
         runPit(new SelectTestClass(testClassName, packageName, projectName));
     }
 
@@ -125,6 +134,14 @@ public class PitclipseSteps {
     }
     
     private void runPit(Runnable runnable) {
+        System.out.println("COMPILING THE WORKSPACE... " + System.currentTimeMillis());
+        try {
+            ResourcesPlugin.getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, new NullProgressMonitor());
+        } catch (CoreException e) {
+            throw new StepException(e);
+        }
+        System.out.println("WORKSPACE BUILT... " + System.currentTimeMillis());
+        
         int retryCount = 20;
         int counter = 0;
         while (counter < retryCount) {

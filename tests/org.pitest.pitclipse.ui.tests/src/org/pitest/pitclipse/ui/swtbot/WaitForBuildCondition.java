@@ -60,6 +60,7 @@ public class WaitForBuildCondition extends DefaultCondition implements
     private class BuiltResourceChangeListener implements
             IResourceChangeListener {
         public void resourceChanged(IResourceChangeEvent event) {
+            System.out.println("   END OF BUILD FOR: " + event.getResource());
             completed = true;
         }
     }

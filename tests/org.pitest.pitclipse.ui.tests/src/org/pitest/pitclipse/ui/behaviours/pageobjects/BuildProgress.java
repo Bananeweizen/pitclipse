@@ -30,9 +30,11 @@ public class BuildProgress {
     }
 
     public void waitForBuild() {
+        System.out.println("   I AM WAITING FOR BUILD TO END...");
         try {
             bot.waitUntil(buildCompleteCondition, BUILD_TIMEOUT);
         } finally {
+            System.out.println("   SEEMS LIKE BUILD HAS ENDED...");
             buildCompleteCondition.unsubscribe();
             buildCompleteCondition = null;
         }
