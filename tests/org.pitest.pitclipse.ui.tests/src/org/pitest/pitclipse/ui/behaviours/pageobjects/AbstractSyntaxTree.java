@@ -19,6 +19,7 @@ package org.pitest.pitclipse.ui.behaviours.pageobjects;
 import com.google.common.collect.ImmutableList;
 
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IncrementalProjectBuilder;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -32,6 +33,7 @@ import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.pitest.pitclipse.ui.behaviours.StepException;
 
+import java.util.Arrays;
 import java.util.List;
 
 public class AbstractSyntaxTree {
@@ -115,7 +117,22 @@ public class AbstractSyntaxTree {
                 // likely useless, but at this point I don't prefer to test everything
                 System.out.println("WAITING FOR THE CLASSPATH TO BE UPDATED");
             }
+            
+            System.out.println("CLASSPATH UPDATED: " + Arrays.toString(project.getRawClasspath()));
+            
+            DumbMonitor mon = new DumbMonitor();
+            project.getProject().build(IncrementalProjectBuilder.FULL_BUILD, mon);
+            
+            while (!monitor.isDone && !monitor.isCanceled()) {
+                // wait for the project to be built
+                // likely useless, but at this point I don't prefer to test everything
+                System.out.println("WAITING FOR THE PROJECT TO BE BUILT");
+            }
+            
         } catch (JavaModelException e) {
+            throw new StepException(e);
+        } catch (CoreException e) {
+            System.out.println("AN ERROR OCCURRED DURING BUILD: " + e.getMessage());
             throw new StepException(e);
         }
     }
